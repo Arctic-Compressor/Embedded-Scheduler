@@ -4,19 +4,19 @@
  * @brief header for Scheduler.hpp
  * @version 0.1
  * @date 2020-07-23
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * 
+ *
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,7 +24,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
+ *
  */
 
 #pragma once
@@ -56,20 +56,20 @@ public:
     {
         public:
             friend class Scheduler; /* Give Scheduler access to internal variables */
-            
+
             /* Constructor */
             Task(){}
-            Task(void (*func)(), volatile uint32_t interval) : 
-                func(func), 
-                interval(interval) 
+            Task(void (*func)(), volatile uint32_t interval) :
+                func(func),
+                interval(interval)
             {
             }
-            
-            
+
+
             /* Public members */
             void (*func)();
             volatile uint32_t interval;
-        
+
         private:
             /* Internal variables */
             uint32_t last_called_ = 0;
@@ -78,7 +78,7 @@ public:
     /* Constructor */
     Scheduler(/* args */);
     ~Scheduler();
-    
+
     /**
      * APIs
      */
@@ -87,9 +87,10 @@ public:
     uint32_t tick(void);
     uint32_t getTickCount(void);
 
+    volatile uint32_t sys_tick_ctr_ = 0;    /*!< System tick counter */
 private:
     /* Internal variables */
-    volatile uint32_t sys_tick_ctr_ = 0;    /*!< System tick counter */
+
     uint16_t num_tasks_ = 0;                /*!< Number of tasks in the task table */
     Task* task_table_ = NULL;               /*!< Pointer to the task table */
 
