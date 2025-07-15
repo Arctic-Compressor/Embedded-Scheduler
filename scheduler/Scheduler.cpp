@@ -63,17 +63,21 @@ bool Scheduler::init(Task* const taskTable, const uint16_t num_tasks, const uint
     return retval;
 }
 
-uint32_t Scheduler::tick(void)
+bool Scheduler::init(Task* const taskTable, const uint16_t num_tasks) {
+    return init(taskTable, num_tasks, 1);
+}
+
+inline uint32_t Scheduler::tick(void)
 {
     return sys_tick_ctr_ += systick_interval_;
 }
 
-uint32_t Scheduler::getTickCount(void)
+inline uint32_t Scheduler::getTickCount(void)
 {
     return sys_tick_ctr_;
 }
 
-void Scheduler::setTickInterval(const uint32_t systick_interval) {
+inline void Scheduler::setTickInterval(const uint32_t systick_interval) {
     this->systick_interval_ = systick_interval;
 }
 

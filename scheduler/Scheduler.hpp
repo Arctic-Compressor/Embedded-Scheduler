@@ -91,6 +91,19 @@ public:
     bool init(Task* const taskTable, const uint16_t num_tasks, const uint32_t systick_interval);
 
     /**
+     * @brief   Initializes the scheduler object.
+     *          This function binds the array of tasks [taskTable]
+     *          to be executed by the scheduler.
+     *
+     * @param taskTable Array of type [Task*] that has the pointer to the tasks
+     *                  that will be used by the scheduler.
+     * @param systick_interval  Actual duration of a single systick, typically in microseconds
+     * @return true     On successful initialization
+     * @return false    Returns false when one of the functions in the [taskTable] is null.
+     */
+    bool init(Task* const taskTable, const uint16_t num_tasks);
+
+    /**
      * @brief Runs the tasks registered via init().
      *
      */
