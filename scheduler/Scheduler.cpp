@@ -4,19 +4,19 @@
  * @brief A lean, lightweight, and portable scheduler designed for embedded C++ applications.
  * @version 0.1
  * @date 2020-07-23
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
- * 
+ *
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
- * 
+ *
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,59 +24,30 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- * 
+ *
  */
 
 #include "Scheduler.hpp"
 
-/**
- * @brief Class constructor
- * 
- */
-Scheduler::Scheduler(/* args */)
-{
-}
-
-/**
- * @brief Destroy the Scheduler:: Scheduler object
- * 
- */
-Scheduler::~Scheduler()
-{
-}
-
-/**
- * @brief   Initializes the scheduler object.
- *          This function binds the array of tasks [taskTable] 
- *          to be executed by the scheduler.
- *          This also gives the object information on how long a systick is.
- * 
- * @param taskTable Array of type [Task*] that has the pointer to the tasks
- *                  that will be used by the scheduler.
- * @param num_tasks Number of members in array [taskTable]
- * @param systick_interval  Actual duration of a single systick, in microseconds
- * @return true     On successful initialization
- * @return false    Returns false when one of the functions in the [taskTable] is null.
- */
-bool Scheduler::init(Task* const taskTable, const uint16_t num_tasks, const uint32_t systick_interval)
-{
+bool Scheduler::init(Task* const taskTable, const uint16_t num_tasks, const uint32_t systick_interval) {
+    this->systick_interval_ = systick_interval;
     bool retval = false;
 
     /* Checks for null pointer */
-    if( taskTable == NULL ) return retval; 
+    if( taskTable == NULL ) return retval;
 
     /* Checks whether the functions are not NULL */
     for( uint16_t i = 0; i < num_tasks; ++i )
     {
-        if( taskTable[i].func == NULL ) 
+        if( taskTable[i].func == NULL )
             return retval;
     }
 
     /* Attaches the taskTable and num_tasks to internal variables */
     task_table_ = taskTable;
     num_tasks_ = num_tasks;
-    
-    /*  Initializes the last_called_ to 
+
+    /*  Initializes the last_called_ to
     *   (UINT32_MAX - interval + 1) so that function is called
     *   on first instance of run().
     */
@@ -92,42 +63,32 @@ bool Scheduler::init(Task* const taskTable, const uint16_t num_tasks, const uint
     return retval;
 }
 
-/**
- * @brief Increments the system tick 
- * 
- * @return uint32_t 
- */
 uint32_t Scheduler::tick(void)
 {
-    return ++sys_tick_ctr_;
+    return sys_tick_ctr_ += systick_interval_;
 }
 
-/**
- * @brief Get the system tick counter value
- * 
- * @return uint32_t System Tick Counter Value
- */
 uint32_t Scheduler::getTickCount(void)
 {
     return sys_tick_ctr_;
 }
 
-/**
- * @brief Runs the tasks registered via init().
- * 
- */
+void Scheduler::setTickInterval(const uint32_t systick_interval) {
+    this->systick_interval_ = systick_interval;
+}
+
 void Scheduler::run(void)
 {
     uint32_t sysctr;
 
     /* Loop across the tasks */
     for( uint16_t i = 0; i < num_tasks_; ++i )
-    {   
+    {
         /* obtain a copy of the sys_tick_ctr at the execution to avoid concurrency */
         sysctr = sys_tick_ctr_;
 
         /* Breaks the loop on NULL existence */
-        if( task_table_[i].func == NULL ) 
+        if( task_table_[i].func == NULL )
             break;
 
         /* Run the tasks */
@@ -141,8 +102,8 @@ void Scheduler::run(void)
             /* Run the tasks that are already due */
             (*(task_table_[i].func))();
 
-            /* Update last_called_. 
-             * using sysctr instead of sys_tick_ctr makes sure that 
+            /* Update last_called_.
+             * using sysctr instead of sys_tick_ctr makes sure that
              * the counter value is the same at the start and end of the function
              */
             task_table_[i].last_called_ = sysctr;
@@ -152,6 +113,6 @@ void Scheduler::run(void)
             /* do nothing */
             continue;
         }
-        
+
     }
 }
